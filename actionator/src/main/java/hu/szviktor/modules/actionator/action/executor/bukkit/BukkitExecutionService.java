@@ -85,7 +85,7 @@ public class BukkitExecutionService implements ExecutionService {
 			return this.permission.playerAdd(null, player, value);
 		}
 
-		if (type == ActionType.GRANT_PERMISSION) {
+		if (type == ActionType.REVOKE_PERMISSION) {
 			if (!this.isVaultSupported) {
 				Bukkit.getLogger().warning(
 						"A Vault kapcsolat nem jöhet létre, ezért a feladatot nem lehet Vault segítségével végrehajtani!");
@@ -97,7 +97,7 @@ public class BukkitExecutionService implements ExecutionService {
 			return this.permission.playerRemove(null, player, value);
 		}
 
-		if (type == ActionType.GRANT_PERMISSION) {
+		if (type == ActionType.SET_GROUP) {
 			if (!this.isVaultSupported) {
 				Bukkit.getLogger().warning(
 						"A Vault kapcsolat nem jöhet létre, ezért a feladatot nem lehet Vault segítségével végrehajtani!");
