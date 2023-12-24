@@ -1,4 +1,4 @@
-package hu.szviktor.modules.actionator;
+package hu.szviktor.modules.actionator.action;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,7 +11,8 @@ import com.google.common.collect.Maps;
 public enum ActionType {
 
 	RUN_COMMAND("run_command"), ECO_DEPOSIT("eco_deposit"), ECO_REVOKE("eco_revoke"),
-	GRANT_PERMISSION("grant_permission"), SET_GROUP("set_group"), SEND_MESSAGE("send_message");
+	GRANT_PERMISSION("grant_permission"), REVOKE_PERMISSION("revoke_permission"), SET_GROUP("set_group"),
+	SEND_MESSAGE("send_message");
 
 	@NotNull
 	private String name;

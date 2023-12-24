@@ -1,4 +1,4 @@
-package hu.szviktor.modules.actionator;
+package hu.szviktor.modules.actionator.action;
 
 import java.io.IOException;
 
