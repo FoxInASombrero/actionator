@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.google.common.base.Preconditions;
 
-import hu.szviktor.modules.actionator.action.Action;
+import hu.szviktor.modules.actionator.action.AbstractAction;
 import hu.szviktor.modules.actionator.action.ActionType;
 import hu.szviktor.modules.actionator.action.executor.ActionExecutor;
 import hu.szviktor.modules.actionator.action.executor.ExecutionException;
@@ -24,8 +24,6 @@ public class BukkitExecutionService implements ExecutionService {
 	@NotNull
 	private Permission permission;
 
-	private boolean isVaultSupported = false;
-
 	public BukkitExecutionService() {
 		this.checkVault();
 	}
@@ -33,19 +31,23 @@ public class BukkitExecutionService implements ExecutionService {
 	private void checkVault() {
 		PluginManager pluginManager = Bukkit.getPluginManager();
 
-		if (pluginManager.getPlugin("Vault") == null)
+		if (pluginManager.getPlugin("Vault") == null) {
+			Bukkit.getLogger()
+					.warning("A Vault kapcsolat nem tudott létrejönni, ezért annak funkciói nem használhatóak!");
+
 			return;
+		}
 
 		ServicesManager servicesManager = Bukkit.getServicesManager();
 
 		this.economy = servicesManager.getRegistration(Economy.class).getProvider();
 		this.permission = servicesManager.getRegistration(Permission.class).getProvider();
 
-		this.isVaultSupported = true;
+		boolean isVaultSupported = true;
 	}
 
 	@Override
-	public boolean execute(@NotNull ActionExecutor executor, @NotNull Action action) throws ExecutionException {
+	public boolean execute(@NotNull ActionExecutor executor, @NotNull AbstractAction action) throws ExecutionException {
 		Preconditions.checkArgument(action != null, "Az Action nem lehet null!");
 
 		if (!(executor.getExecutor() instanceof Player))
@@ -54,60 +56,8 @@ public class BukkitExecutionService implements ExecutionService {
 		Player player = (Player) executor.getExecutor();
 
 		ActionType type = action.getType();
-		String value = action.getValue();
 
-		if (type == ActionType.RUN_COMMAND) {
-			if (value.startsWith("console:")) {
-				String[] args = value.split(":");
-				String command = args[1].replaceAll("%player%", player.getName());
-
-				return Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-			}
-
-			return Bukkit.dispatchCommand(player, value);
-		}
-
-		if (type == ActionType.SEND_MESSAGE) {
-			player.sendRawMessage(value);
-
-			return true;
-		}
-
-		if (type == ActionType.GRANT_PERMISSION) {
-			if (!this.isVaultSupported) {
-				Bukkit.getLogger().warning(
-						"A Vault kapcsolat nem jöhet létre, ezért a feladatot nem lehet Vault segítségével végrehajtani!");
-
-				throw new ExecutionException(
-						"Nem sikerült a feladat végrehajtása! Kérlek, vedd fel a kapcsolatot egy adminisztrátorral!");
-			}
-
-			return this.permission.playerAdd(null, player, value);
-		}
-
-		if (type == ActionType.REVOKE_PERMISSION) {
-			if (!this.isVaultSupported) {
-				Bukkit.getLogger().warning(
-						"A Vault kapcsolat nem jöhet létre, ezért a feladatot nem lehet Vault segítségével végrehajtani!");
-
-				throw new ExecutionException(
-						"Nem sikerült a feladat végrehajtása! Kérlek, vedd fel a kapcsolatot egy adminisztrátorral!");
-			}
-
-			return this.permission.playerRemove(null, player, value);
-		}
-
-		if (type == ActionType.SET_GROUP) {
-			if (!this.isVaultSupported) {
-				Bukkit.getLogger().warning(
-						"A Vault kapcsolat nem jöhet létre, ezért a feladatot nem lehet Vault segítségével végrehajtani!");
-
-				throw new ExecutionException(
-						"Nem sikerült a feladat végrehajtása! Kérlek, vedd fel a kapcsolatot egy adminisztrátorral!");
-			}
-
-			return this.permission.playerAddGroup(null, player, value);
-		}
+		// TODO: teljesen újraírni az egészet.
 
 		return false;
 	}

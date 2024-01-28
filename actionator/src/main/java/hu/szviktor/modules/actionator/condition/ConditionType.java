@@ -1,4 +1,4 @@
-package hu.szviktor.modules.actionator.action;
+package hu.szviktor.modules.actionator.condition;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,15 +8,15 @@ import org.jetbrains.annotations.NotNull;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-public enum ActionType {
+public enum ConditionType {
 
-	RUN_COMMAND("run_command"), ECONOMY("economy"), ECO_REVOKE("eco_revoke"), SEND_MESSAGE("send_message");
+	HAS_PERMISSION("has_permission");
 
 	@NotNull
 	private String name;
 
 	@NotNull
-	private static final HashMap<String, ActionType> NAME_MAP = Maps.newHashMap();
+	private static final HashMap<String, ConditionType> NAME_MAP = Maps.newHashMap();
 
 	static {
 		Arrays.stream(values()).forEach(value -> {
@@ -24,7 +24,7 @@ public enum ActionType {
 		});
 	}
 
-	private ActionType(@NotNull String name) {
+	private ConditionType(@NotNull String name) {
 		Preconditions.checkArgument(name != null, "A név nem lehet null!");
 
 		this.name = name;
@@ -34,7 +34,7 @@ public enum ActionType {
 		return this.name;
 	}
 
-	public static ActionType findByName(@NotNull String name) {
+	public static ConditionType findByName(@NotNull String name) {
 		Preconditions.checkArgument(name != null, "A név nem lehet null!");
 
 		if (!NAME_MAP.containsKey(name))

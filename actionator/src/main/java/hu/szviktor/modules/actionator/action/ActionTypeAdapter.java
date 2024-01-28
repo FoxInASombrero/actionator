@@ -6,10 +6,10 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-public class ActionTypeAdapter extends TypeAdapter<Action> {
+public class ActionTypeAdapter extends TypeAdapter<AbstractAction> {
 
 	@Override
-	public Action read(JsonReader in) throws IOException {
+	public AbstractAction read(JsonReader in) throws IOException {
 		ActionType type = ActionType.SEND_MESSAGE;
 		String value = "Érvénytelen beállítás!";
 
@@ -35,15 +35,15 @@ public class ActionTypeAdapter extends TypeAdapter<Action> {
 
 		in.endObject();
 
-		return new Action(type, value);
+		return null; // TODO: teljesen újraírni az egészet.
 	}
 
 	@Override
-	public void write(JsonWriter out, Action value) throws IOException {
+	public void write(JsonWriter out, AbstractAction value) throws IOException {
 		out.beginObject();
 
 		out.name("type").value(value.getType().getName());
-		out.name("value").value(value.getValue());
+		out.name("value").value(""); // TODO: teljesen újraírni az egészet.
 
 		out.endObject();
 	}
