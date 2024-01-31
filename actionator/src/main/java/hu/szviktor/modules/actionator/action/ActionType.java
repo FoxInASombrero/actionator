@@ -10,7 +10,7 @@ import com.google.common.collect.Maps;
 
 public enum ActionType {
 
-	RUN_COMMAND("run_command"), ECONOMY("economy"), ECO_REVOKE("eco_revoke"), SEND_MESSAGE("send_message");
+	RUN_COMMAND("run_command"), ECONOMY("economy"), POTION_EFFECT("potion_effect"), SEND_MESSAGE("send_message");
 
 	@NotNull
 	private String name;

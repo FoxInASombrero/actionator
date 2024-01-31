@@ -16,9 +16,8 @@ public class PotionEffectAction extends AbstractAction {
 	@NotNull
 	private PotionEffectActionData data;
 
-	public PotionEffectAction(ActionType type, @NotNull PotionEffectActionData data,
-			@Nullable List<AbstractCondition> conditions) {
-		super(type, conditions);
+	public PotionEffectAction(@NotNull PotionEffectActionData data, @Nullable List<AbstractCondition> conditions) {
+		super(ActionType.POTION_EFFECT, conditions);
 
 		Preconditions.checkArgument(data != null, "A megadott PotionEffectActionData nem lehet null!");
 
