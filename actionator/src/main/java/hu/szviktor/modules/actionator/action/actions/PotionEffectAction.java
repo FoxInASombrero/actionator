@@ -35,16 +35,23 @@ public class PotionEffectAction extends AbstractAction {
 
 		private int duration;
 
-		private int modifier;
+		private int amplifier;
 
-		public PotionEffectActionData(@NotNull String value, int duration, int modifier) {
+		private boolean ambient;
+
+		private boolean particles;
+
+		public PotionEffectActionData(@NotNull String value, int duration, int amplifier, boolean ambient,
+				boolean particles) {
 			Preconditions.checkArgument(value != null, "A PotionEffectActionData értéke nem lehet null!");
 			Preconditions.checkArgument(duration >= 1, "Az effekt ideje nem lehet kevesebb, mint 1 másodperc!");
-			Preconditions.checkArgument(modifier >= 1, "Az effekt erőssége nem lehet kevesebb, mint 1!");
+			Preconditions.checkArgument(amplifier >= 1, "Az effekt erőssége nem lehet kevesebb, mint 1!");
 
 			this.value = value;
 			this.duration = duration;
-			this.modifier = modifier;
+			this.amplifier = amplifier;
+			this.ambient = ambient;
+			this.particles = particles;
 		}
 
 		public @NotNull String getValue() {
@@ -55,8 +62,16 @@ public class PotionEffectAction extends AbstractAction {
 			return this.duration;
 		}
 
-		public int getModifier() {
-			return this.modifier;
+		public int getAmplifier() {
+			return this.amplifier;
+		}
+
+		public boolean isAmbient() {
+			return this.ambient;
+		}
+
+		public boolean hasParticles() {
+			return this.particles;
 		}
 
 	}

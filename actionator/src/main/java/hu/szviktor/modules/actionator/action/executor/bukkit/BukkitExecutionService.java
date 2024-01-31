@@ -6,6 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicesManager;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.base.Preconditions;
@@ -13,6 +15,9 @@ import com.google.common.base.Preconditions;
 import hu.szviktor.modules.actionator.action.AbstractAction;
 import hu.szviktor.modules.actionator.action.ActionType;
 import hu.szviktor.modules.actionator.action.actions.EconomyAction;
+import hu.szviktor.modules.actionator.action.actions.MessageAction;
+import hu.szviktor.modules.actionator.action.actions.PotionEffectAction;
+import hu.szviktor.modules.actionator.action.actions.PotionEffectAction.PotionEffectActionData;
 import hu.szviktor.modules.actionator.action.actions.RunCommandAction;
 import hu.szviktor.modules.actionator.action.executor.ActionExecutor;
 import hu.szviktor.modules.actionator.action.executor.ExecutionException;
@@ -20,6 +25,7 @@ import hu.szviktor.modules.actionator.action.executor.ExecutionService;
 import hu.szviktor.modules.actionator.condition.AbstractCondition;
 import hu.szviktor.modules.actionator.condition.ConditionResponse;
 import hu.szviktor.modules.actionator.condition.ConditionType;
+import hu.szviktor.modules.actionator.condition.conditions.EconomyCondition;
 import hu.szviktor.modules.actionator.condition.conditions.PermissionCondition;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
@@ -67,19 +73,18 @@ public class BukkitExecutionService implements ExecutionService {
 		ActionType type = action.getType();
 		List<AbstractCondition> conditions = action.getConditions();
 
-		conditions.forEach(condition -> {
-			ConditionType conditionType = condition.getType();
-
-			if (conditionType == ConditionType.HAS_PERMISSION) {
-				PermissionCondition wrappedCondition = (PermissionCondition) condition;
-				String permission = wrappedCondition.getValue();
-
-				condition.setResponse(
-						player.hasPermission(permission) ? ConditionResponse.SUCCESS : ConditionResponse.FAILED);
-			}
-		});
+		this.checkConditions(executor, action);
 
 		if (conditions.stream().allMatch(condition -> condition.getResponse().equals(ConditionResponse.SUCCESS))) {
+			if (type == ActionType.SEND_MESSAGE) {
+				MessageAction wrappedAction = (MessageAction) action;
+				String message = wrappedAction.getValue();
+
+				player.sendRawMessage(message);
+
+				return true;
+			}
+
 			if (type == ActionType.RUN_COMMAND) {
 				RunCommandAction wrappedAction = (RunCommandAction) action;
 
@@ -92,9 +97,49 @@ public class BukkitExecutionService implements ExecutionService {
 
 				return (this.isVaultSupported) && (this.economy.withdrawPlayer(player, amount).transactionSuccess());
 			}
+
+			if (type == ActionType.POTION_EFFECT) {
+				PotionEffectAction wrappedAction = (PotionEffectAction) action;
+				PotionEffectActionData data = wrappedAction.getData();
+				String effect = data.getValue();
+				int duration = data.getDuration();
+				int amplifier = data.getAmplifier();
+				boolean ambient = data.isAmbient();
+				boolean particles = data.hasParticles();
+
+				return player.addPotionEffect(
+						new PotionEffect(PotionEffectType.getByName(effect), duration, amplifier, ambient, particles));
+			}
 		}
 
 		return false;
+	}
+
+	@Override
+	public void checkConditions(@NotNull ActionExecutor executor, @NotNull AbstractAction action) {
+		Player player = (Player) executor.getExecutor();
+		List<AbstractCondition> conditions = action.getConditions();
+
+		conditions.forEach(condition -> {
+			ConditionType conditionType = condition.getType();
+
+			if (conditionType == ConditionType.HAS_PERMISSION) {
+				PermissionCondition wrappedCondition = (PermissionCondition) condition;
+				String permission = wrappedCondition.getValue();
+
+				condition.setResponse(
+						player.hasPermission(permission) ? ConditionResponse.SUCCESS : ConditionResponse.FAILED);
+			}
+
+			if (conditionType == ConditionType.HAS_MONEY) {
+				EconomyCondition wrappedCondition = (EconomyCondition) condition;
+				double amount = wrappedCondition.getAmount();
+
+				condition.setResponse(
+						((this.isVaultSupported) && this.economy.has(player, amount)) ? ConditionResponse.SUCCESS
+								: ConditionResponse.FAILED);
+			}
+		});
 	}
 
 }
