@@ -11,6 +11,10 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import com.google.common.base.Preconditions;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import hu.szviktor.modules.actionator.action.AbstractAction;
 import hu.szviktor.modules.actionator.action.ActionType;
@@ -27,6 +31,8 @@ import hu.szviktor.modules.actionator.condition.ConditionResponse;
 import hu.szviktor.modules.actionator.condition.ConditionType;
 import hu.szviktor.modules.actionator.condition.conditions.EconomyCondition;
 import hu.szviktor.modules.actionator.condition.conditions.PermissionCondition;
+import hu.szviktor.modules.actionator.condition.conditions.worldguard.RegionCondition;
+import hu.szviktor.modules.actionator.condition.conditions.worldguard.RegionCondition.RegionConditionData;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 
@@ -40,8 +46,12 @@ public class BukkitExecutionService implements ExecutionService {
 
 	boolean isVaultSupported;
 
+	private WorldGuard worldGuard;
+
 	public BukkitExecutionService() {
 		this.checkVault();
+
+		this.worldGuard = WorldGuard.getInstance();
 	}
 
 	private void checkVault() {
@@ -62,8 +72,13 @@ public class BukkitExecutionService implements ExecutionService {
 		this.isVaultSupported = true;
 	}
 
+	public ActionExecutor wrapPlayer(@NotNull Player executor) {
+		return new BukkitActionExecutor(executor);
+	}
+
 	@Override
 	public boolean execute(@NotNull ActionExecutor executor, @NotNull AbstractAction action) throws ExecutionException {
+		Preconditions.checkArgument(executor != null, "A végrehajtó nem lehet null!");
 		Preconditions.checkArgument(action != null, "Az Action nem lehet null!");
 
 		if (!(executor.getExecutor() instanceof Player))
@@ -137,6 +152,29 @@ public class BukkitExecutionService implements ExecutionService {
 
 				condition.setResponse(
 						((this.isVaultSupported) && this.economy.has(player, amount)) ? ConditionResponse.SUCCESS
+								: ConditionResponse.FAILED);
+			}
+
+			if (conditionType == ConditionType.IN_REGION) {
+				RegionCondition wrappedCondition = (RegionCondition) condition;
+				RegionConditionData data = wrappedCondition.getData();
+				String world = data.getWorld();
+				String region = data.getValue();
+
+				RegionManager regionManager = this.worldGuard.getPlatform().getRegionContainer()
+						.get(BukkitAdapter.adapt(Bukkit.getWorld(world)));
+
+				if (!regionManager.hasRegion(region)) {
+					condition.setResponse(ConditionResponse.FAILED);
+
+					return;
+				}
+
+				ProtectedRegion wrappedRegion = regionManager.getRegion(region);
+
+				condition
+						.setResponse(wrappedRegion.contains(BukkitAdapter.asVector(player.getLocation()).toBlockPoint())
+								? ConditionResponse.SUCCESS
 								: ConditionResponse.FAILED);
 			}
 		});

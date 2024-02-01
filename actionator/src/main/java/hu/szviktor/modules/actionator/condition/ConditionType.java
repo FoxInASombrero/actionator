@@ -10,7 +10,7 @@ import com.google.common.collect.Maps;
 
 public enum ConditionType {
 
-	HAS_PERMISSION("has_permission"), HAS_MONEY("has_money");
+	HAS_PERMISSION("has_permission"), HAS_MONEY("has_money"), IN_REGION("in_region");
 
 	@NotNull
 	private String name;
