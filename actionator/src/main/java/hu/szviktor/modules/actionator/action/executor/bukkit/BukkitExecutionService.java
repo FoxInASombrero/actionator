@@ -48,7 +48,8 @@ public class BukkitExecutionService implements ExecutionService {
 
 	private WorldGuard worldGuard;
 
-	public BukkitExecutionService() {
+	@Override
+	public void init() {
 		this.checkVault();
 
 		this.worldGuard = WorldGuard.getInstance();
