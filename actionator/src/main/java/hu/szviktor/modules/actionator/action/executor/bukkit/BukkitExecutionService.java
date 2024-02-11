@@ -31,8 +31,8 @@ import hu.szviktor.modules.actionator.condition.ConditionResponse;
 import hu.szviktor.modules.actionator.condition.ConditionType;
 import hu.szviktor.modules.actionator.condition.conditions.EconomyCondition;
 import hu.szviktor.modules.actionator.condition.conditions.PermissionCondition;
-import hu.szviktor.modules.actionator.condition.conditions.worldguard.RegionCondition;
-import hu.szviktor.modules.actionator.condition.conditions.worldguard.RegionCondition.RegionConditionData;
+import hu.szviktor.modules.actionator.condition.conditions.bukkit.worldguard.RegionCondition;
+import hu.szviktor.modules.actionator.condition.conditions.bukkit.worldguard.RegionCondition.RegionConditionData;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 

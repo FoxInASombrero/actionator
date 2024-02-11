@@ -1,4 +1,4 @@
-package hu.szviktor.modules.actionator.condition.conditions.worldguard;
+package hu.szviktor.modules.actionator.condition.conditions.bukkit.worldguard;
 
 import org.jetbrains.annotations.NotNull;
 
